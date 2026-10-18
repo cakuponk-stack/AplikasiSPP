@@ -18,7 +18,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # KITA BUAT MESIN GRADLE-NYA DI SINI
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
         with:
