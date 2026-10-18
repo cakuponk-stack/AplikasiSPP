@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPP Syahriah</title>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 16px; background: #f4f6f8; padding-bottom: 50px;}
+  h1 { font-size: 20px; color: #1a5e3a; text-align: center; }
+  .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+  input, select, button { font-size: 15px; padding: 10px; margin: 4px 0; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid #ccc; }
+  button { background: #1a5e3a; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+  button:active { background: #124229; }
+  .lunas { color: #1a7f37; font-weight: bold; font-size: 13px;}
+  .belum { color: #cf222e; font-weight: bold; font-size: 13px;}
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+  .row:last-child { border-bottom: none; }
+  .btn-bayar { background: #0969da; width: auto; padding: 6px 12px; font-size: 13px; margin: 0;}
+  .btn-hapus { background: #cf222e; width: auto; padding: 6px 12px; font-size: 13px; margin: 0;}
+  .total { font-size: 18px; font-weight: bold; color: #1a5e3a; }
+  .flex-gap { display: flex; gap: 8px; }
+</style>
+</head>
+<body>
+  <h1>📿 SPP Syahriah</h1>
+
+  <div class="card">
+    <strong>Tambah Santri</strong>
+    <input id="nama" placeholder="Nama santri">
+    <input id="spp" type="number" placeholder="Nominal SPP / bulan (Rp)">
+    <button onclick="tambahSantri()">+ Tambah Santri</button>
+  </div>
+
+  <div class="card flex-gap">
+    <div style="flex: 1;">
+      <label style="font-size: 13px; color: #555;">Bulan:</label>
+      <select id="bulan" onchange="render()">
+        <option>Januari</option><option>Februari</option><option>Maret</option>
+        <option>April</option><option>Mei</option><option>Juni</option>
+        <option>Juli</option><option>Agustus</option><option>September</option>
+        <option>Oktober</option><option>November</option><option>Desember</option>
+      </select>
+    </div>
+    <div style="flex: 1;">
+      <label style="font-size: 13px; color: #555;">Tahun:</label>
+      <select id="tahun" onchange="render()"></select>
+    </div>
+  </div>
+
+  <div class="card" id="daftar"></div>
+
+  <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+    <span>Total masuk:</span>
+    <span class="total" id="total">Rp 0</span>
+  </div>
+
+<script>
+  // Ambil data dari memori HP
+  let data = JSON.parse(localStorage.getItem('sppData') || '{"santri":[],"bayar":{}}');
+  
+  function simpan() { localStorage.setItem('sppData', JSON.stringify(data)); }
+
+  // Isi dropdown tahun otomatis
+  const now = new Date().getFullYear();
+  const thn = document.getElementById('tahun');
+  for (let y = now - 2; y <= now + 2; y++) {
+    thn.innerHTML += `<option ${y===now?'selected':''}>${y}</option>`;
+  }
+
+  function tambahSantri() {
+    const nama = document.getElementById('nama').value.trim();
+    const spp = parseInt(document.getElementById('spp').value) || 0;
+    if (!nama) return alert('Nama santri wajib diisi!');
+    if (spp <= 0) return alert('Nominal SPP wajib diisi!');
+    
+    data.santri.push({ id: Date.now(), nama, spp });
+    simpan(); render();
+    
+    document.getElementById('nama').value = '';
+    document.getElementById('spp').value = '';
+  }
+
+  function hapusSantri(id) {
+    if (!confirm('Yakin ingin menghapus santri ini? Semua riwayat pembayarannya juga akan hilang.')) return;
+    data.santri = data.santri.filter(s => s.id !== id);
+    simpan(); render();
+  }
+
+  function toggleBayar(id) {
+    const key = id + '-' + document.getElementById('bulan').value + '-' + thn.value;
+    data.bayar[key] = !data.bayar[key];
+    simpan(); render();
+  }
+
+  function render() {
+    const bulan = document.getElementById('bulan').value;
+    const tahun = thn.value;
+    const el = document.getElementById('daftar');
+    let total = 0;
+
+    if (data.santri.length === 0) {
+      el.innerHTML = '<p style="color:#888; text-align:center;">Belum ada santri. Silakan tambah di atas.</p>';
+      document.getElementById('total').textContent = 'Rp 0';
+      return;
+    }
+
+    el.innerHTML = data.santri.map(s => {
+      const key = s.id + '-' + bulan + '-' + tahun;
+      const lunas = data.bayar[key];
+      if (lunas) total += s.spp;
+      
+      return `<div class="row">
+        <div>
+          <div style="font-weight:bold; font-size:16px;">${s.nama}</div>
+          <div style="color:#666; font-size:13px; margin-bottom:4px;">Rp ${s.spp.toLocaleString('id-ID')}</div>
+          <div class="${lunas?'lunas':'belum'}">${lunas?'✓ LUNAS':'✗ BELUM'}</div>
+        </div>
+        <div class="flex-gap">
+          <button class="btn-bayar" onclick="toggleBayar(${s.id})">
+            ${lunas?'Batal':'Bayar'}
+          </button>
+          <button class="btn-hapus" onclick="hapusSantri(${s.id})">Hapus</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('total').textContent = 'Rp ' + total.toLocaleString('id-ID');
+  }
+
+  // Jalankan render saat pertama kali dibuka
+  render();
+</script>
+</body>
+</html>
