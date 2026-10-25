@@ -4,30 +4,47 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Data Warga</title>
-<!-- Library untuk membuat PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-  body { font-family: sans-serif; margin: 0; padding: 16px; background: #f4f6f8; padding-bottom: 50px;}
-  h1 { font-size: 22px; color: #1a5e3a; text-align: center; margin-bottom: 20px;}
+  /* ==========================================
+     PENGATURAN TEMA WARNA (Bisa diubah di sini)
+     ========================================== */
+  :root {
+    --warna-utama: #1a5e3a; /* Hijau Gelap */
+    --warna-tombol: #0d6efd; /* Biru */
+    --warna-hapus: #cf222e; /* Merah */
+    --warna-edit: #e3b341; /* Kuning/Orange */
+    --warna-bg: #f4f6f8;
+  }
+
+  body { font-family: sans-serif; margin: 0; padding: 16px; background: var(--warna-bg); padding-bottom: 50px;}
+  h1 { font-size: 22px; color: var(--warna-utama); text-align: center; margin-bottom: 20px;}
   .card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
   label { font-size: 14px; font-weight: bold; color: #333; display: block; margin-top: 10px; margin-bottom: 4px;}
-  input, select { font-size: 15px; padding: 10px; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid #ccc; }
-  button { background: #1a5e3a; color: #fff; border: none; font-weight: bold; cursor: pointer; padding: 12px; width: 100%; border-radius: 6px; font-size: 16px; margin-top: 15px; }
-  button:active { background: #124229; }
-  button:disabled { background: #888; }
+  input, select { font-size: 15px; padding: 10px; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 8px;}
+  button { color: #fff; border: none; font-weight: bold; cursor: pointer; padding: 12px; width: 100%; border-radius: 6px; font-size: 15px; }
   
-  /* Styling Dashboard */
-  .menu-btn { background: #0d6efd; margin-top: 10px; }
-  .menu-btn-2 { background: #6c757d; margin-top: 10px; }
+  /* Tombol Dashboard */
+  .btn-utama { background: var(--warna-tombol); margin-top: 10px; }
+  .btn-kembali { background: #6c757d; margin-top: 20px; }
   
-  /* Styling Tabel */
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-  th { background-color: #1a5e3a; color: white; }
-  tr:nth-child(even) { background-color: #f2f2f2; }
+  /* Tabel */
+  .table-container { overflow-x:auto; margin-top: 15px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: middle; }
+  th { background-color: var(--warna-utama); color: white; text-align: center;}
+  tr:nth-child(even) { background-color: #f9f9f9; }
   
+  /* Tombol Aksi di Tabel */
+  .btn-aksi { padding: 5px 8px; font-size: 11px; width: auto; margin: 2px; border-radius: 4px; }
+  .btn-hapus { background: var(--warna-hapus); }
+  .btn-edit { background: var(--warna-edit); color: #000; }
+
+  /* Layout Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .hidden { display: none; }
   .success { color: #1a7f37; text-align: center; font-weight: bold; margin-top: 10px; display: none; }
 </style>
@@ -36,11 +53,15 @@
 
   <!-- ================= DASHBOARD ================= -->
   <div id="dashboard">
-    <h1>📋 Menu Utama</h1>
+    <!-- LOGO KUSTOM (Ganti URL src dengan link logo desa/RT kamu) -->
+    <div style="text-align: center; margin-bottom: 15px;">
+      <img src="https://cdn-icons-png.flaticon.com/512/921/921347.png" alt="Logo Desa" style="width: 80px; height: 80px; border-radius: 50%;">
+    </div>
+    <h1>Pendataan Warga</h1>
     <div class="card">
-      <p style="text-align:center; color:#555;">Selamat datang di Aplikasi Pendataan Warga.</p>
-      <button class="menu-btn" onclick="bukaHalaman('formInput')">➕ Isi Data Warga</button>
-      <button class="menu-btn-2" onclick="bukaHalaman('cekData')">🔍 Cek Data Warga</button>
+      <p style="text-align:center; color:#555;">Selamat datang di Sistem Pendataan Warga.</p>
+      <button class="btn-utama" onclick="bukaHalaman('formInput')">➕ Isi Data Warga</button>
+      <button class="btn-utama" onclick="bukaHalaman('cekData')">🔍 Cek & Kelola Data Warga</button>
     </div>
   </div>
 
@@ -69,74 +90,93 @@
 
         <label>Keterangan</label>
         <input type="text" id="keterangan" placeholder="Contoh: Warga Baru, Pindah, dll">
+        
+        <input type="hidden" id="oldNik" value="">
 
-        <button type="submit" id="btnSimpan">Simpan ke Database</button>
+        <button type="submit" id="btnSimpan" class="btn-utama">Simpan ke Database</button>
         <div class="success" id="pesanSukses">✅ Data berhasil disimpan!</div>
       </form>
-      <button class="menu-btn-2" onclick="bukaHalaman('dashboard')" style="margin-top:20px;">⬅️ Kembali ke Menu</button>
+      <button class="btn-kembali" onclick="bukaHalaman('dashboard')">⬅️ Kembali ke Menu</button>
     </div>
   </div>
 
   <!-- ================= CEK DATA ================= -->
   <div id="cekData" class="hidden">
-    <h1>🔍 Cek Data Warga</h1>
+    <h1>🔍 Kelola Data Warga</h1>
     <div class="card">
       
-      <div style="display:flex; gap:10px;">
-        <input type="text" id="inputCari" placeholder="Cari nama warga..." onkeyup="cariData()">
-      </div>
-      
-      <div style="display:flex; gap:10px; margin-top: 10px;">
-        <button onclick="muatData()" id="btnMuat">🔄 Tarik Data dari Sheets</button>
-        <button onclick="downloadPDF()" style="background:#cf222e;">📄 Download PDF</button>
+      <!-- Fitur Filter & Pencarian -->
+      <div class="grid-2">
+        <div>
+          <label>Cari Nama:</label>
+          <input type="text" id="inputCari" placeholder="Ketik nama..." onkeyup="filterData()">
+        </div>
+        <div>
+          <label>Filter Status:</label>
+          <select id="filterStatus" onchange="filterData()">
+            <option value="">Semua Status</option>
+            <option value="Kepala Keluarga">Kepala Keluarga</option>
+            <option value="Istri/Suami">Istri/Suami</option>
+            <option value="Anak">Anak</option>
+            <option value="Famili Lain">Famili Lain</option>
+          </select>
+        </div>
       </div>
 
-      <div style="overflow-x:auto;">
+      <div class="grid-3" style="margin-top: 15px;">
+        <button onclick="muatData()" id="btnMuat" style="background: var(--warna-utama);">🔄 Tarik Data</button>
+        <button onclick="downloadPDF()" style="background: var(--warna-hapus);">📄 PDF (Pilih/Centang)</button>
+        <button onclick="downloadPDF(true)" style="background: var(--warna-tombol);">📥 PDF Semua</button>
+      </div>
+
+      <div class="table-container">
         <table id="tabelWarga">
           <thead>
             <tr>
-              <th>Nama</th>
+              <th width="5%"><input type="checkbox" id="checkAll" onchange="toggleAll()"></th>
+              <th>Nama & No.KK</th>
               <th>NIK</th>
               <th>Status</th>
+              <th width="15%">Aksi</th>
             </tr>
           </thead>
           <tbody id="bodyTabel">
-            <tr><td colspan="3" style="text-align:center;">Belum ada data. Klik tombol Tarik Data.</td></tr>
+            <tr><td colspan="5" style="text-align:center;">Klik "Tarik Data" untuk memuat.</td></tr>
           </tbody>
         </table>
       </div>
       
-      <button class="menu-btn-2" onclick="bukaHalaman('dashboard')" style="margin-top:20px;">⬅️ Kembali ke Menu</button>
+      <button class="btn-kembali" onclick="bukaHalaman('dashboard')">⬅️ Kembali ke Menu</button>
     </div>
   </div>
 
 <script>
-  // GANTI DENGAN URL WEB APP KAMU
   const GAS_URL = "https://script.google.com/macros/s/AKfycbw4tO_pDQBi09t_VhJWThxjYuri3EF6cThsRH4jhYMjAp5m37bxd-bsgxSbdHYyEan7wQ/exec";
-  
-  let semuaDataWarga = []; // Menyimpan data sementara di memori HP
+  let semuaDataWarga = []; 
+  let dataTampilSaatIni = [];
 
-  // Fungsi Navigasi Menu
+  // Navigasi
   function bukaHalaman(idHalaman) {
     document.getElementById('dashboard').classList.add('hidden');
     document.getElementById('formInput').classList.add('hidden');
     document.getElementById('cekData').classList.add('hidden');
-    
     document.getElementById(idHalaman).classList.remove('hidden');
     
-    // Jika buka cek data, otomatis tarik data terbaru
-    if(idHalaman === 'cekData') {
-      muatData();
-    }
+    if(idHalaman === 'cekData') { muatData(); }
+    if(idHalaman === 'formInput') { document.getElementById('formWarga').reset(); document.getElementById('oldNik').value = ""; }
   }
 
-  // ================= FUNGSI SIMPAN DATA =================
+  // ================= SIMPAN DATA (INSERT / UPDATE) =================
   function simpanData(e) {
     e.preventDefault();
     const btn = document.getElementById('btnSimpan');
     const pesan = document.getElementById('pesanSukses');
+    const oldNik = document.getElementById('oldNik').value;
     
+    const action = oldNik ? "update" : "insert";
     const data = {
+      action: action,
+      oldNik: oldNik,
       noKK: document.getElementById('noKK').value,
       nik: document.getElementById('nik').value,
       nama: document.getElementById('nama').value,
@@ -147,92 +187,135 @@
     btn.innerText = "Menyimpan...";
     btn.disabled = true;
 
-    fetch(GAS_URL, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-      if(result.status === "success") {
+    fetch(GAS_URL, { method: 'POST', body: JSON.stringify(data) })
+    .then(res => res.json())
+    .then(res => {
+      if(res.status === "success") {
         pesan.style.display = "block";
         document.getElementById('formWarga').reset();
+        document.getElementById('oldNik').value = "";
         setTimeout(() => { pesan.style.display = "none"; }, 3000);
+        if(action === "update") { bukaHalaman('cekData'); }
       }
     })
-    .catch(error => alert("Gagal menyimpan. Cek koneksi internet."))
+    .catch(err => alert("Gagal menyimpan."))
     .finally(() => { btn.innerText = "Simpan ke Database"; btn.disabled = false; });
   }
 
-  // ================= FUNGSI TARIK DATA (GET) =================
+  // ================= TARIK DATA =================
   function muatData() {
-    const btn = document.getElementById('btnMuat');
-    const bodyTabel = document.getElementById('bodyTabel');
-    
-    btn.innerText = "Memuat data...";
-    btn.disabled = true;
-    bodyTabel.innerHTML = `<tr><td colspan="3" style="text-align:center;">Menghubungi Google Sheets...</td></tr>`;
-
+    document.getElementById('btnMuat').innerText = "Memuat...";
     fetch(GAS_URL)
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
-        semuaDataWarga = data; // Simpan ke variabel global
-        renderTabel(semuaDataWarga);
+        semuaDataWarga = data.reverse(); // Terbaru di atas
+        filterData(); // Tampilkan dengan filter saat ini
       })
-      .catch(error => {
-        bodyTabel.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">Gagal memuat data. Pastikan URL benar.</td></tr>`;
-      })
-      .finally(() => {
-        btn.innerText = "🔄 Tarik Data dari Sheets";
-        btn.disabled = false;
-      });
+      .catch(err => alert("Gagal memuat data."))
+      .finally(() => { document.getElementById('btnMuat').innerText = "🔄 Tarik Data"; });
   }
 
-  // Tampilkan data ke Tabel HTML
+  // ================= FILTER & RENDER TABEL =================
+  function filterData() {
+    const kataKunci = document.getElementById('inputCari').value.toLowerCase();
+    const filterStatus = document.getElementById('filterStatus').value;
+
+    dataTampilSaatIni = semuaDataWarga.filter(w => {
+      const cocokNama = w.nama.toLowerCase().includes(kataKunci);
+      const cocokStatus = filterStatus === "" || w.status === filterStatus;
+      return cocokNama && cocokStatus;
+    });
+
+    renderTabel(dataTampilSaatIni);
+  }
+
   function renderTabel(data) {
-    const bodyTabel = document.getElementById('bodyTabel');
-    bodyTabel.innerHTML = "";
-    
+    const body = document.getElementById('bodyTabel');
+    body.innerHTML = "";
+    document.getElementById('checkAll').checked = false;
+
     if(data.length === 0) {
-      bodyTabel.innerHTML = `<tr><td colspan="3" style="text-align:center;">Data kosong.</td></tr>`;
+      body.innerHTML = `<tr><td colspan="5" style="text-align:center;">Data tidak ditemukan.</td></tr>`;
       return;
     }
 
-    // Tampilkan terbalik (data terbaru di atas)
-    data.reverse().forEach(warga => {
-      bodyTabel.innerHTML += `
+    data.forEach((w, index) => {
+      body.innerHTML += `
         <tr>
-          <td><b>${warga.nama}</b><br>KK: ${warga.noKK}</td>
-          <td>${warga.nik}</td>
-          <td>${warga.status}</td>
+          <td style="text-align:center;"><input type="checkbox" class="check-item" data-nik="${w.nik}" data-index="${index}"></td>
+          <td><b>${w.nama}</b><br><small>KK: ${w.noKK}</small></td>
+          <td>${w.nik}</td>
+          <td>${w.status}</td>
+          <td style="text-align:center;">
+            <button class="btn-aksi btn-edit" onclick="editData(${index})">Edit</button>
+            <button class="btn-aksi btn-hapus" onclick="hapusData('${w.nik}')">Hapus</button>
+          </td>
         </tr>
       `;
     });
   }
 
-  // ================= FUNGSI PENCARIAN =================
-  function cariData() {
-    const kataKunci = document.getElementById('inputCari').value.toLowerCase();
-    const hasilFilter = semuaDataWarga.filter(warga => 
-      warga.nama.toLowerCase().includes(kataKunci)
-    );
-    renderTabel(hasilFilter);
+  // ================= HAPUS DATA =================
+  function hapusData(nik) {
+    if(!confirm("Yakin ingin menghapus data warga ini secara permanen?")) return;
+    
+    fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'delete', nik: nik })
+    })
+    .then(res => res.json())
+    .then(res => { if(res.status === "success") { alert("Data terhapus!"); muatData(); } })
+    .catch(err => alert("Gagal menghapus data."));
   }
 
-  // ================= FUNGSI DOWNLOAD PDF =================
-    function downloadPDF() {
-    if(semuaDataWarga.length === 0) {
-      alert("Belum ada data untuk didownload.");
-      return;
+  // ================= EDIT DATA =================
+  function editData(index) {
+    const w = dataTampilSaatIni[index];
+    bukaHalaman('formInput');
+    
+    // Isi form dengan data lama
+    document.getElementById('noKK').value = w.noKK;
+    document.getElementById('nik').value = w.nik;
+    document.getElementById('nama').value = w.nama;
+    document.getElementById('status').value = w.status;
+    document.getElementById('keterangan').value = w.keterangan;
+    document.getElementById('oldNik').value = w.nik; // Simpan NIK lama untuk acuan update
+    
+    // Ubah teks tombol
+    document.getElementById('btnSimpan').innerText = "Update Data Warga";
+    window.scrollTo(0,0); // Scroll ke atas
+  }
+
+  // ================= CEKLIS SEMUA =================
+  function toggleAll() {
+    const isChecked = document.getElementById('checkAll').checked;
+    const checkboxes = document.querySelectorAll('.check-item');
+    checkboxes.forEach(cb => cb.checked = isChecked);
+  }
+
+  // ================= DOWNLOAD PDF (PILIHAN / SEMUA) =================
+  function downloadPDF(semua = false) {
+    let dataUntukPDF = [];
+
+    if(semua) {
+      dataUntukPDF = dataTampilSaatIni; // Ambil semua data yang sedang tampil
+    } else {
+      const checkboxes = document.querySelectorAll('.check-item:checked');
+      if(checkboxes.length === 0) return alert("Centang data yang ingin didownload, atau gunakan tombol 'PDF Semua'.");
+      
+      checkboxes.forEach(cb => {
+        const index = cb.getAttribute('data-index');
+        dataUntukPDF.push(dataTampilSaatIni[index]);
+      });
     }
+
+    if(dataUntukPDF.length === 0) return alert("Tidak ada data.");
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    doc.text("Laporan Data Warga Terpilih", 14, 15);
 
-    doc.text("Laporan Data Warga", 14, 15);
-
-    const tableData = semuaDataWarga.map(warga => [
-      warga.nama, warga.nik, warga.noKK, warga.status, warga.keterangan
-    ]);
+    const tableData = dataUntukPDF.map(w => [w.nama, w.nik, w.noKK, w.status, w.keterangan]);
 
     doc.autoTable({
       head: [['Nama', 'NIK', 'No KK', 'Status', 'Keterangan']],
@@ -240,13 +323,10 @@
       startY: 20,
     });
 
-    // Cek apakah aplikasi berjalan di Android (WebView)
     if (window.AndroidDownloader) {
-      // Ubah PDF jadi teks Base64, lalu kirim ke Android
       const pdfBase64 = doc.output('datauristring').split(',')[1];
       window.AndroidDownloader.savePdf(pdfBase64, "Data_Warga.pdf");
     } else {
-      // Jika dibuka di browser biasa (untuk testing)
       doc.save('Data_Warga.pdf');
     }
   }
