@@ -5,6 +5,9 @@
     <!-- Wajib agar WebView bisa mengakses internet -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- TAMBAHKAN BARIS INI UNTUK IZIN SIMPAN FILE -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
