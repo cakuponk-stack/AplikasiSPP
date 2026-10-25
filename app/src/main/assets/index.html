@@ -219,7 +219,7 @@
   }
 
   // ================= FUNGSI DOWNLOAD PDF =================
-  function downloadPDF() {
+    function downloadPDF() {
     if(semuaDataWarga.length === 0) {
       alert("Belum ada data untuk didownload.");
       return;
@@ -230,7 +230,6 @@
 
     doc.text("Laporan Data Warga", 14, 15);
 
-    // Siapkan data untuk tabel PDF
     const tableData = semuaDataWarga.map(warga => [
       warga.nama, warga.nik, warga.noKK, warga.status, warga.keterangan
     ]);
@@ -241,8 +240,15 @@
       startY: 20,
     });
 
-    // Simpan file
-    doc.save('Data_Warga.pdf');
+    // Cek apakah aplikasi berjalan di Android (WebView)
+    if (window.AndroidDownloader) {
+      // Ubah PDF jadi teks Base64, lalu kirim ke Android
+      const pdfBase64 = doc.output('datauristring').split(',')[1];
+      window.AndroidDownloader.savePdf(pdfBase64, "Data_Warga.pdf");
+    } else {
+      // Jika dibuka di browser biasa (untuk testing)
+      doc.save('Data_Warga.pdf');
+    }
   }
 </script>
 </body>
