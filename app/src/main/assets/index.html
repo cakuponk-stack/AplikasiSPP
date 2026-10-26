@@ -321,7 +321,7 @@
     });
   }
 
-  // ================= HAPUS DATA =================
+    // ================= HAPUS DATA =================
   function hapusData(nik) {
     if(!confirm("Yakin ingin menghapus data warga ini secara permanen?")) return;
     
@@ -330,8 +330,18 @@
       body: JSON.stringify({ action: 'delete', nik: nik })
     })
     .then(res => res.json())
-    .then(res => { if(res.status === "success") { alert("Data terhapus!"); muatData(); } })
-    .catch(err => alert("Gagal menghapus data."));
+    .then(res => { 
+      if(res.status === "success") { 
+        alert("Data berhasil dihapus!"); 
+        muatData(); 
+      } else {
+        alert("Gagal menghapus: " + (res.message || "NIK tidak ditemukan di database."));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Gagal terhubung ke server. Periksa koneksi internet.");
+    });
   }
 
   // ================= EDIT DATA =================
