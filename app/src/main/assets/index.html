@@ -132,31 +132,74 @@
 </head>
 <body>
 
-    <!-- ================= DASHBOARD ================= -->
+    <body>
+
+  <!-- ================= DASHBOARD BARU ================= -->
   <div id="dashboard">
-    <div style="text-align: center; animation: fadeInUp 0.5s ease-out;">
-      <!-- LOGO DESA/RT (Ganti link src jika mau pakai logo sendiri) -->
-      <img src="https://cdn-icons-png.flaticon.com/512/3126/3126579.png" alt="Logo Desa" class="logo-img">
-      <h1>Pendataan Warga</h1>
-      <div class="subtitle">Sistem Informasi Data Kependudukan</div>
+    <!-- Header Gradien -->
+    <div class="header-bg">
+      <div class="header-top">
+        <h1>Pendataan</h1>
+        <div class="header-icons">
+          <span class="material-icons-round">notifications</span>
+          <span class="material-icons-round">account_circle</span>
+        </div>
+      </div>
+      <div class="header-subtitle">Sistem Informasi Warga Desa</div>
     </div>
 
-    <div class="card" style="animation-delay: 0.1s;">
-      <p style="text-align:center; color:#555; margin-bottom: 20px;">Silakan pilih menu di bawah ini:</p>
-      
-      <button class="btn-menu" onclick="bukaHalaman('formInput')">
-        <span>➕</span> Isi Data Warga Baru
-      </button>
-      
-      <button class="btn-menu-2" onclick="bukaHalaman('cekData')">
-        <span>🔍</span> Cek & Kelola Data Warga
-      </button>
+    <!-- Kartu Putih Melayang -->
+    <div class="main-card">
+      <div class="date-box">
+        <h2>Aplikasi</h2>
+        <p>Administrasi Warga v2.0</p>
+      </div>
+      <button class="btn-action" onclick="bukaHalaman('formInput')">+ Warga</button>
+    </div>
+
+    <!-- Menu Grid -->
+    <div class="menu-grid">
+      <!-- Menu 1 -->
+      <div class="menu-item" onclick="bukaHalaman('formInput')">
+        <div class="icon-box bg-hijau">
+          <span class="material-icons-round">person_add</span>
+        </div>
+        <div class="title">Tambah Warga</div>
+        <div class="desc">Input data baru</div>
+      </div>
+
+      <!-- Menu 2 -->
+      <div class="menu-item" onclick="bukaHalaman('cekData')">
+        <div class="icon-box bg-biru">
+          <span class="material-icons-round">manage_search</span>
+        </div>
+        <div class="title">Data Warga</div>
+        <div class="desc">Cari & Kelola</div>
+      </div>
+
+      <!-- Menu 3 -->
+      <div class="menu-item" onclick="bukaHalaman('cekData')">
+        <div class="icon-box bg-merah">
+          <span class="material-icons-round">picture_as_pdf</span>
+        </div>
+        <div class="title">Cetak PDF</div>
+        <div class="desc">Download Laporan</div>
+      </div>
+
+      <!-- Menu 4 -->
+      <div class="menu-item" onclick="alert('Fitur Pengaturan akan segera hadir!')">
+        <div class="icon-box bg-kuning">
+          <span class="material-icons-round">settings</span>
+        </div>
+        <div class="title">Pengaturan</div>
+        <div class="desc">Konfigurasi App</div>
+      </div>
     </div>
   </div>
 
   <!-- ================= FORM INPUT ================= -->
-  <div id="formInput" class="hidden">
-    <h1>➕ Isi Data Warga</h1>
+  <div id="formInput" class="hidden page-container">
+    <h1 class="page-title">➕ Isi Data Warga</h1>
     <div class="card">
       <form id="formWarga" onsubmit="simpanData(event)">
         <label>Nomor KK</label>
@@ -190,11 +233,10 @@
   </div>
 
   <!-- ================= CEK DATA ================= -->
-  <div id="cekData" class="hidden">
-    <h1>🔍 Kelola Data Warga</h1>
+  <div id="cekData" class="hidden page-container">
+    <h1 class="page-title">🔍 Kelola Data Warga</h1>
     <div class="card">
       
-      <!-- Fitur Filter & Pencarian -->
       <div class="grid-2">
         <div>
           <label>Cari Nama:</label>
@@ -214,8 +256,8 @@
 
       <div class="grid-3" style="margin-top: 15px;">
         <button onclick="muatData()" id="btnMuat" style="background: var(--warna-utama);">🔄 Tarik Data</button>
-        <button onclick="downloadPDF()" style="background: var(--warna-hapus);">📄 PDF (Pilih/Centang)</button>
-        <button onclick="downloadPDF(true)" style="background: var(--warna-tombol);">📥 PDF Semua</button>
+        <button onclick="downloadPDF()" style="background: #cf222e;">📄 PDF Pilihan</button>
+        <button onclick="downloadPDF(true)" style="background: #0d6efd;">📥 PDF Semua</button>
       </div>
 
       <div class="table-container">
@@ -238,7 +280,7 @@
       <button class="btn-kembali" onclick="bukaHalaman('dashboard')">⬅️ Kembali ke Menu</button>
     </div>
   </div>
-
+      
 <script>
   const GAS_URL = "https://script.google.com/macros/s/AKfycbw4tO_pDQBi09t_VhJWThxjYuri3EF6cThsRH4jhYMjAp5m37bxd-bsgxSbdHYyEan7wQ/exec";
   let semuaDataWarga = []; 
