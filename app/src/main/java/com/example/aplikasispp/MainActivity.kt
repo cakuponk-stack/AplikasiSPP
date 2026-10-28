@@ -7,6 +7,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64
 import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient // TAMBAHAN BARU
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -21,6 +22,9 @@ class MainActivity : AppCompatActivity() {
         val webView = WebView(this)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
+        
+        // PENTING: Tambahkan WebChromeClient agar pop-up Alert/Confirm bisa muncul
+        webView.webChromeClient = WebChromeClient() 
         webView.webViewClient = WebViewClient()
 
         // JEMBATAN UNTUK SIMPAN PDF
@@ -31,7 +35,6 @@ class MainActivity : AppCompatActivity() {
                     val decodedBytes = Base64.decode(base64, Base64.DEFAULT)
                     
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        // Untuk Android 10 ke atas
                         val contentValues = ContentValues().apply {
                             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                             put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
@@ -45,7 +48,6 @@ class MainActivity : AppCompatActivity() {
                             runOnUiThread { Toast.makeText(this@MainActivity, "PDF disimpan di folder Download", Toast.LENGTH_LONG).show() }
                         }
                     } else {
-                        // Untuk Android 9 ke bawah
                         val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                         val file = File(downloadsDir, fileName)
                         val fos = FileOutputStream(file)
